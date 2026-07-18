@@ -6,8 +6,8 @@
     "node": ">=20.19"
   },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
@@ -17,6 +17,8 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.2",
+    "@wagmi/connectors": "^8.0.24",
+    "@wagmi/core": "^3.6.3",
     "next": "16.2.10",
     "postgres": "^3.4.9",
     "react": "19.2.4",
@@ -35,5 +37,8 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^3.2.7"
+  },
+  "optionalDependencies": {
+    "@next/swc-darwin-arm64": "^16.2.10"
   }
 }

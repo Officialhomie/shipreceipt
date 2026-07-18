@@ -1,0 +1,10 @@
+export const registryAbi = [
+  { type: "function", name: "projects", stateMutability: "view", inputs: [{ name: "projectId", type: "bytes32" }], outputs: [{ name: "owner", type: "address" }, { name: "repositoryHash", type: "bytes32" }, { name: "exists", type: "bool" }] },
+  { type: "function", name: "registerProject", stateMutability: "nonpayable", inputs: [{ name: "projectId", type: "bytes32" }, { name: "repositoryHash", type: "bytes32" }], outputs: [] },
+  { type: "function", name: "issueReceipt", stateMutability: "nonpayable", inputs: [{ name: "projectId", type: "bytes32" }, { name: "commitHash", type: "bytes32" }, { name: "deploymentHash", type: "bytes32" }, { name: "evidenceRoot", type: "bytes32" }, { name: "passedChecks", type: "uint32" }, { name: "totalChecks", type: "uint32" }, { name: "status", type: "uint8" }], outputs: [{ name: "receiptId", type: "uint256" }] },
+  { type: "function", name: "getReceipt", stateMutability: "view", inputs: [{ name: "receiptId", type: "uint256" }], outputs: [{ name: "", type: "tuple", components: [{ name: "issuer", type: "address" }, { name: "projectId", type: "bytes32" }, { name: "commitHash", type: "bytes32" }, { name: "deploymentHash", type: "bytes32" }, { name: "evidenceRoot", type: "bytes32" }, { name: "passedChecks", type: "uint32" }, { name: "totalChecks", type: "uint32" }, { name: "verifiedAt", type: "uint64" }, { name: "status", type: "uint8" }] }] },
+  { type: "event", name: "ReceiptIssued", inputs: [{ name: "receiptId", type: "uint256", indexed: true }, { name: "projectId", type: "bytes32", indexed: true }, { name: "commitHash", type: "bytes32", indexed: true }, { name: "status", type: "uint8", indexed: false }, { name: "evidenceRoot", type: "bytes32", indexed: false }] },
+] as const;
+
+export const configuredRegistryAddress = process.env.NEXT_PUBLIC_SHIPRECEIPT_CONTRACT_ADDRESS as `0x${string}` | undefined;
+

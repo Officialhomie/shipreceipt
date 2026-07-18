@@ -1,65 +1,20 @@
-import Image from "next/image";
+import Link from "next/link";
+
+const features = [
+  ["Live checks", "Reachability, health and readiness run server-side."],
+  ["Commit binding", "Resolve an exact 40-character public GitHub commit."],
+  ["Evidence hashing", "Canonical JSON produces a deterministic keccak256 root."],
+  ["Monad receipt", "Write the root, result and counts to an immutable registry."],
+  ["Public proof", "Recompute evidence and compare it with the onchain record."],
+];
 
 export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+  return <main>
+    <nav className="nav shell"><Link className="brand" href="/"><span className="brand-mark" aria-hidden="true" />ShipReceipt</Link><span className="nav-note">Independent build verification · Monad Testnet</span></nav>
+    <section className="hero shell">
+      <div><span className="eyebrow">Tamper-evident build proof</span><h1>AI can say it shipped.<br /><em>Prove it.</em></h1><p className="hero-copy">Verify a live deployment, bind the evidence to a real GitHub commit, and create a public build receipt anchored on Monad.</p><div className="actions"><Link className="button" href="/verify">Verify a build <span aria-hidden="true">→</span></Link><span className="nav-note">Real checks. No generated verdicts.</span></div></div>
+      <aside className="proof-card" aria-label="Example verification receipt"><span className="eyebrow">Receipt preview</span><h2>Build verification</h2><div className="proof-row"><span>Repository</span><b>commit bound</b></div><div className="proof-row"><span>Deployment</span><b>reachable</b></div><div className="proof-row"><span>Evidence</span><b>keccak256</b></div><div className="proof-row"><span>Network</span><b>Monad Testnet</b></div><div className="stamp">EVIDENCE<br />INTEGRITY<br />VALID</div></aside>
+    </section>
+    <section className="features shell">{features.map(([title, copy]) => <article className="feature" key={title}><b>{title}</b><p>{copy}</p></article>)}</section>
+  </main>;
 }
