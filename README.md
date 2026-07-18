@@ -6,6 +6,8 @@ ShipReceipt verifies a live software deployment, binds the evidence to a real
 public GitHub commit, and records a tamper-evident verification receipt on
 Monad.
 
+Public repository: https://github.com/Officialhomie/shipreceipt
+
 ## Problem
 
 AI coding tools can generate software and confident completion reports quickly,
@@ -217,10 +219,12 @@ evidence hashing, Postgres adapter, registry contract, wallet transaction flow,
 public receipt integrity view, responsive UI, documentation, and submission
 draft.
 
-Not yet deployed: public GitHub repository, Monad registry, durable hosted
-database, Vercel application, and real receipt transaction. Those steps require
-the user’s authenticated GitHub/Vercel accounts and a funded testnet deployment
-wallet. No deployment identifiers are fabricated in this README.
+Published: the public GitHub repository and its clean `main` history.
+
+Not yet deployed: Monad registry, durable hosted database, Vercel application,
+and real receipt transaction. Those steps require a funded testnet deployment
+wallet and hosted environment configuration. No deployment identifiers are
+fabricated in this README.
 
 ## Known limitations
 

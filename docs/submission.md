@@ -30,7 +30,7 @@ verify that the visible evidence still matches the onchain record.
 
 ## GitHub URL
 
-`TODO: add public GitHub repository URL`
+https://github.com/Officialhomie/shipreceipt
 
 ## Monad network
 
@@ -68,8 +68,7 @@ Monad Testnet, and recomputes the root on the public receipt page.
 ## Current honest status
 
 Local implementation, application tests, contract tests, lint, type-check,
-production build, and a live network smoke test pass. Public repository,
-contract deployment, Vercel deployment, durable production database, and the
-first real receipt transaction remain pending authenticated account and wallet
-actions.
-
+production build, and a live network smoke test pass. The public repository is
+live. Contract deployment, Vercel deployment, durable production database, and
+the first real receipt transaction remain pending hosted configuration and a
+funded testnet wallet.
