@@ -1,63 +1,87 @@
-# ShipReceipt demo script — under three minutes
+# ShipReceipt final demo script — approximately 2 minutes 22 seconds
 
-## 0:00–0:25 — Problem
+Receipt #2 is the main story because it preserves a real failure. Keep the
+browser zoom readable, avoid terminal or setup footage, and do not show secrets.
 
-“AI coding agents generate software quickly, but their completion reports are
-not proof that the repository, deployment, endpoints, and contracts actually
-work. A report can also be changed later.”
+## 0:00–0:15 — Personal problem
 
-## 0:25–0:45 — Product
+Show the homepage.
 
-“ShipReceipt performs live technical checks, selects a real GitHub commit for
-the verification, hashes canonical evidence, and records a tamper-evident,
-self-issued receipt on Monad.”
+> I build software with AI coding agents, and I kept seeing the same problem:
+> the agent says the task is complete, but the deployment or one of its
+> dependencies still is not working.
 
-Open the verification form. Briefly point out that no GitHub token, private key,
-or other secret is entered by the user.
+## 0:15–0:28 — Product
 
-## 0:45–1:25 — Real verification
+Point to the headline and the real-receipt link.
 
-Use a public repository and deployed app where:
+> I built ShipReceipt to check the actual project before accepting that
+> completion claim.
 
-- the main deployment responds;
-- the health endpoint responds;
-- the deliberately unavailable readiness endpoint fails.
+## 0:28–0:55 — Verification form
 
-Submit once. Do not edit the result. Show that the repository and commit were
-resolved, the passing checks are green, readiness is red, and the deterministic
-result is `Partial`.
+Open **Check a Build**. Use the prepared ShipReceipt values:
 
-## 1:25–2:10 — Evidence review
+- public GitHub repository;
+- live Production deployment;
+- `/api/health`;
+- `/api/readiness-deliberately-missing`; and
+- the Monad registry address.
 
-Show the full commit SHA, deployment URL, individual reasons and durations,
-4/5 check counts, timestamp, and canonical evidence root. Say:
+> I provide the public repository, live deployment, health and readiness
+> endpoints, and the Monad contract.
 
-“ShipReceipt selects this repository commit for the verification. It does not
-overclaim that the deployment came from that commit.”
+## 0:55–1:20 — Real checks
 
-## 2:10–2:40 — Monad transaction
+Submit and show the progress copy and readable check list.
 
-Connect the owner wallet on Monad Testnet. Explain that the wallet is the public
-issuer and this is self-issued build verification—not an independent audit.
-Show exactly what the registry will store, then select `Record self-issued
-receipt`. Point out that opening the wallet is not success: ShipReceipt waits
-for confirmation, decodes `ReceiptIssued`, and reads the receipt back.
+> ShipReceipt resolves the repository and selected commit, visits the live
+> deployment, checks the endpoints, and confirms the contract bytecode. These
+> are real project checks; no AI model decides the result.
 
-## 2:40–3:00 — Public proof
+## 1:20–1:35 — Honest result
 
-On the public receipt page, show the self-issued label, issuer, selected commit,
-snapshot age, independently observed versus project-reported labels, deployment,
-contract transaction link, failed readiness check, and:
+Show the `Partial` result and failed readiness line.
 
-`Evidence integrity: Valid`
+> Four checks passed, but the readiness endpoint returned HTTP 404. ShipReceipt
+> preserves that failure instead of turning it into a fake success screen.
 
-Close with: “AI can claim it shipped. ShipReceipt proves what actually worked.”
+## 1:35–1:55 — Evidence and Monad
 
-## Pre-recording checklist
+Show the evidence-root disclosure and recording explanation. If recording a new
+receipt would consume demo time, use the already confirmed Receipt #2.
 
-- Replace all placeholders in `docs/submission.md`.
-- Use the final public repository and hosted application.
-- Confirm the demo wallet is on chain `10143` and has enough testnet MON.
-- Run one rehearsal without recording.
-- Keep the browser zoom and wallet popup readable.
-- Never show `.env.local`, terminal history, private keys, or provider tokens.
+> The detailed evidence stays offchain. Its root, result, issuer, timestamp,
+> and check totals are recorded on Monad so the report cannot be quietly
+> rewritten later.
+
+## 1:55–2:15 — Public Receipt #2
+
+Open [Receipt #2](https://shipreceipt.vercel.app/receipt/2). Show:
+
+- `Partial Build Receipt` and 4/5 checks;
+- the readiness HTTP `404`;
+- independently observed and project-reported labels;
+- `Evidence integrity: Valid`;
+- snapshot time and issuer; and
+- the Monad transaction link.
+
+> Anyone can open the public receipt without connecting a wallet, inspect what
+> passed or failed, and confirm that the stored evidence still matches the
+> onchain root.
+
+## 2:15–2:22 — Close
+
+Return to the homepage headline.
+
+> AI can claim it shipped. ShipReceipt proves what actually worked.
+
+## Recording checklist
+
+- Rehearse once and keep the finished video between 90 and 165 seconds.
+- Preload the form values or paste them quickly.
+- Keep Receipt #2 open in a second tab.
+- Hide bookmarks, notifications, wallet balances, and unrelated tabs.
+- Never show `.env.local`, terminal history, private keys, database strings, or
+  provider tokens.
+- Add the published video URL to `docs/submission.md`.

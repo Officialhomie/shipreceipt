@@ -1,15 +1,72 @@
 "use client";
 
 import { useState } from "react";
-import { useAccount,useConnect,usePublicClient,useSwitchChain,useWalletClient } from "wagmi";
 import { injected } from "@wagmi/connectors/injected";
-import { keccak256,parseEventLogs,toBytes } from "viem";
 import { useRouter } from "next/navigation";
+import { keccak256, parseEventLogs, toBytes } from "viem";
+import { useAccount, useConnect, usePublicClient, useSwitchChain, useWalletClient } from "wagmi";
 import type { Evidence } from "@/lib/evidence/schema";
-import { configuredRegistryAddress,registryAbi } from "@/lib/monad/registry";
+import { configuredRegistryAddress, registryAbi } from "@/lib/monad/registry";
 
-export function RecordReceipt({result}:{result:{evidenceId:string;evidence:Evidence;evidenceRoot:`0x${string}`}}){
-  const router=useRouter(); const account=useAccount(); const {connect,isPending:connecting}=useConnect(); const {switchChainAsync}=useSwitchChain(); const publicClient=usePublicClient(); const {data:walletClient}=useWalletClient(); const [working,setWorking]=useState(false); const [error,setError]=useState(""); const evidence=result.evidence; const canRecord=Boolean(evidence.project.commit&&configuredRegistryAddress);
-  async function record(){ if(!account.address||!walletClient||!publicClient||!configuredRegistryAddress||!evidence.project.commit)return; setWorking(true);setError("");try{ if(account.chainId!==10143)await switchChainAsync({chainId:10143}); const projectId=keccak256(toBytes(evidence.project.repository)); const repositoryHash=keccak256(toBytes(evidence.project.repository)); const project=await publicClient.readContract({address:configuredRegistryAddress,abi:registryAbi,functionName:"projects",args:[projectId]}); if(!project[2]){const simulation=await publicClient.simulateContract({account:account.address,address:configuredRegistryAddress,abi:registryAbi,functionName:"registerProject",args:[projectId,repositoryHash]});const hash=await walletClient.writeContract(simulation.request);const receipt=await publicClient.waitForTransactionReceipt({hash});if(receipt.status!=="success")throw new Error("Project registration reverted");}else if(project[0].toLowerCase()!==account.address.toLowerCase())throw new Error("This repository is already registered to another wallet"); const status=evidence.summary.status==="verified"?2:evidence.summary.status==="partial"?1:0;const simulation=await publicClient.simulateContract({account:account.address,address:configuredRegistryAddress,abi:registryAbi,functionName:"issueReceipt",args:[projectId,keccak256(toBytes(evidence.project.commit)),keccak256(toBytes(evidence.deployment.url)),result.evidenceRoot,evidence.summary.passed,evidence.summary.total,status]});const hash=await walletClient.writeContract(simulation.request);const transaction=await publicClient.waitForTransactionReceipt({hash});if(transaction.status!=="success")throw new Error("Receipt transaction reverted");const logs=parseEventLogs({abi:registryAbi,eventName:"ReceiptIssued",logs:transaction.logs});const receiptId=logs[0]?.args.receiptId;if(receiptId===undefined)throw new Error("ReceiptIssued event could not be decoded");const stored=await publicClient.readContract({address:configuredRegistryAddress,abi:registryAbi,functionName:"getReceipt",args:[receiptId]});if(stored.evidenceRoot.toLowerCase()!==result.evidenceRoot.toLowerCase())throw new Error("Onchain receipt confirmation did not match evidence");const saved=await fetch("/api/receipts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({receiptId:receiptId.toString(),evidenceId:result.evidenceId,transactionHash:hash,contractAddress:configuredRegistryAddress})});if(!saved.ok)throw new Error("Transaction confirmed, but receipt metadata could not be saved");router.push(`/receipt/${receiptId}`);}catch(cause){setError(cause instanceof Error?cause.message:"Receipt transaction failed");}finally{setWorking(false);}}
-  return <div className="record-box"><h3>Record this snapshot on Monad</h3><p>The checks happen offchain. The registry stores the evidence root, result, issuer, selected commit hash, deployment hash, check counts, and timestamp.</p><div className="secondary-note">Receipt type: Self-issued build verification. The connected wallet becomes the public issuer.</div>{!configuredRegistryAddress&&<div className="notice">The receipt registry address has not been configured. Verification works, but recording is blocked until testnet deployment.</div>}{!evidence.project.commit&&<div className="error-box">A receipt cannot be issued because no repository commit was resolved.</div>}{error&&<div className="error-box" role="alert">{error}</div>}{!account.isConnected?<button className="button" type="button" disabled={connecting||!canRecord} onClick={()=>connect({connector:injected()})}>{connecting?"Connecting wallet…":"Connect issuer wallet"}</button>:<button className="button" type="button" disabled={working||!canRecord} onClick={record}>{working?"Confirming on Monad…":"Record self-issued receipt"}</button>}</div>;
+export function RecordReceipt({ result }: { result: { evidenceId: string; evidence: Evidence; evidenceRoot: `0x${string}` } }) {
+  const router = useRouter();
+  const account = useAccount();
+  const { connect, isPending: connecting } = useConnect();
+  const { switchChainAsync } = useSwitchChain();
+  const publicClient = usePublicClient();
+  const { data: walletClient } = useWalletClient();
+  const [working, setWorking] = useState(false);
+  const [error, setError] = useState("");
+  const evidence = result.evidence;
+  const canRecord = Boolean(evidence.project.commit && configuredRegistryAddress);
+
+  async function record() {
+    if (!account.address || !walletClient || !publicClient || !configuredRegistryAddress || !evidence.project.commit) return;
+    setWorking(true);
+    setError("");
+    try {
+      if (account.chainId !== 10143) await switchChainAsync({ chainId: 10143 });
+      const projectId = keccak256(toBytes(evidence.project.repository));
+      const repositoryHash = keccak256(toBytes(evidence.project.repository));
+      const project = await publicClient.readContract({ address: configuredRegistryAddress, abi: registryAbi, functionName: "projects", args: [projectId] });
+      if (!project[2]) {
+        const simulation = await publicClient.simulateContract({ account: account.address, address: configuredRegistryAddress, abi: registryAbi, functionName: "registerProject", args: [projectId, repositoryHash] });
+        const hash = await walletClient.writeContract(simulation.request);
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
+        if (receipt.status !== "success") throw new Error("Project registration reverted");
+      } else if (project[0].toLowerCase() !== account.address.toLowerCase()) {
+        throw new Error("This repository is already registered to another wallet");
+      }
+      const status = evidence.summary.status === "verified" ? 2 : evidence.summary.status === "partial" ? 1 : 0;
+      const simulation = await publicClient.simulateContract({ account: account.address, address: configuredRegistryAddress, abi: registryAbi, functionName: "issueReceipt", args: [projectId, keccak256(toBytes(evidence.project.commit)), keccak256(toBytes(evidence.deployment.url)), result.evidenceRoot, evidence.summary.passed, evidence.summary.total, status] });
+      const hash = await walletClient.writeContract(simulation.request);
+      const transaction = await publicClient.waitForTransactionReceipt({ hash });
+      if (transaction.status !== "success") throw new Error("Receipt transaction reverted");
+      const logs = parseEventLogs({ abi: registryAbi, eventName: "ReceiptIssued", logs: transaction.logs });
+      const receiptId = logs[0]?.args.receiptId;
+      if (receiptId === undefined) throw new Error("ReceiptIssued event could not be decoded");
+      const stored = await publicClient.readContract({ address: configuredRegistryAddress, abi: registryAbi, functionName: "getReceipt", args: [receiptId] });
+      if (stored.evidenceRoot.toLowerCase() !== result.evidenceRoot.toLowerCase()) throw new Error("Onchain receipt confirmation did not match evidence");
+      const saved = await fetch("/api/receipts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ receiptId: receiptId.toString(), evidenceId: result.evidenceId, transactionHash: hash, contractAddress: configuredRegistryAddress }) });
+      if (!saved.ok) throw new Error("Transaction confirmed, but receipt metadata could not be saved");
+      router.push(`/receipt/${receiptId}`);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Receipt transaction failed");
+    } finally {
+      setWorking(false);
+    }
+  }
+
+  return <div className="record-box">
+    <h3>Record this result on Monad</h3>
+    <p>Recording this result on Monad makes later changes to the evidence detectable.</p>
+    <p className="secondary-note">The detailed evidence stays offchain. The receipt stores its root, result, issuer, selected commit and deployment hashes, check totals, and timestamp.</p>
+    <div className="secondary-note"><strong>Receipt type:</strong> Self-issued build verification. The connected wallet becomes the public issuer.</div>
+    {!configuredRegistryAddress && <div className="notice">The receipt registry address has not been configured. The checks work, but recording is unavailable.</div>}
+    {!evidence.project.commit && <div className="error-box">A receipt cannot be issued because no repository commit was resolved.</div>}
+    {error && <div className="error-box" role="alert">{error}</div>}
+    {!account.isConnected
+      ? <button className="button" type="button" disabled={connecting || !canRecord} onClick={() => connect({ connector: injected() })}>{connecting ? "Connecting wallet…" : "Connect issuer wallet"}</button>
+      : <button className="button" type="button" disabled={working || !canRecord} onClick={record}>{working ? "Confirming on Monad…" : "Record This Result on Monad"}</button>}
+  </div>;
 }

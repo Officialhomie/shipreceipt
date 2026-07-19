@@ -70,6 +70,7 @@ describe("public receipt presentation", () => {
   it("shows status meaning, check categories, freshness, issuer, and scope", () => {
     const output = html();
     expect(output).toContain("Partial");
+    expect(output).toContain("Some checks passed, but the build was not fully ready");
     expect(output).toContain("one or more configured checks failed");
     expect(output).toContain("Independently observed");
     expect(output).toContain("Project-reported");
@@ -97,12 +98,12 @@ describe("public receipt presentation", () => {
   it("provides a distinct evidence-unavailable state", () => {
     expect(RECEIPT_ERROR_PRESENTATION["evidence-unavailable"]).toEqual({
       label: "Evidence unavailable",
-      description: "The stored evidence for this receipt could not be found.",
+      description: "ShipReceipt could not retrieve the evidence required for comparison.",
     });
   });
 
   it.each([
-    [0, "Failed", "minimum verification checks"],
+    [0, "Failed", "minimum checks"],
     [2, "Verified", "All configured checks passed"],
     [3, "Revoked", "no longer considered active"],
   ] as const)("explains status %s", (status, label, description) => {

@@ -1,4 +1,4 @@
-# Spark submission draft
+# Spark hackathon submission
 
 ## Project name
 
@@ -6,29 +6,31 @@ ShipReceipt
 
 ## Short description
 
-ShipReceipt is a build-verification tool for AI-assisted software delivery. It
-records what actually passed or failed in a tamper-evident, self-issued receipt
-on Monad.
+ShipReceipt checks whether an AI-assisted software build actually works and
+records a tamper-evident completion receipt on Monad.
 
 ## Problem
 
-AI coding tools can produce applications and confident completion reports
-quickly, but developers still have to manually verify whether the repository,
-deployment, endpoints, and contracts actually work. Those reports can also be
-edited or deleted after the fact.
+AI coding agents can generate software and confident completion reports
+quickly, but developers, clients, and judges still have to manually check
+whether the repository, deployment, endpoints, and contracts actually work.
+Those reports can also be edited or deleted later.
 
 ## Solution
 
-ShipReceipt performs live technical checks against a public repository,
-deployed application, configured endpoints, and optional Monad contract. It
-packages every pass and failure into versioned canonical evidence, hashes that
-evidence, and records its selected commit, result, timestamp, issuer, and
-evidence root through a smart contract on Monad. Anyone can inspect the public
-receipt and verify that the visible evidence still matches the onchain record.
-Receipts explicitly identify themselves as self-issued build verifications,
-not independent audits or security certifications.
+ShipReceipt performs real checks against a public repository, selected commit,
+live deployment, configured endpoints, and optional Monad contract. It records
+exactly what passed or failed, stores versioned evidence, hashes it, and anchors
+the result on Monad. Anyone can open the public receipt and confirm that the
+available evidence still matches the onchain record.
 
-## Live URL
+## Why Monad
+
+ShipReceipt performs the technical checks offchain. Monad preserves the
+receipt's evidence root, result, issuer, timestamp, and check totals so neither
+the developer nor ShipReceipt can quietly rewrite the recorded evidence later.
+
+## Production URL
 
 https://shipreceipt.vercel.app
 
@@ -36,7 +38,7 @@ https://shipreceipt.vercel.app
 
 https://github.com/Officialhomie/shipreceipt
 
-## Monad network
+## Network
 
 Monad Testnet — chain ID `10143`
 
@@ -48,49 +50,50 @@ Monad Testnet — chain ID `10143`
 
 [`0x58f96b1df3102fa63980ded1c91af8f74a6bdf810af1099756557cb438a0c2cc`](https://testnet.monadvision.com/tx/0x58f96b1df3102fa63980ded1c91af8f74a6bdf810af1099756557cb438a0c2cc)
 
-## Example receipt
+## Verified receipt
 
-- Receipt ID: `1`
+- Result: `Verified` — 4/4 configured checks passed
+- Public receipt: https://shipreceipt.vercel.app/receipt/1
 - Transaction: [`0x88e653a89942d8b64b1f76b569aea86ac6f4951084c5a8def46e6b06ceed4bb1`](https://testnet.monadvision.com/tx/0x88e653a89942d8b64b1f76b569aea86ac6f4951084c5a8def46e6b06ceed4bb1)
-- Public receipt URL: https://shipreceipt.vercel.app/receipt/1
 
-## Deliberate-failure receipt
+## Partial receipt — recommended demo
 
-- Receipt ID: `2`
-- Result: `Partial` — 4/5 passed; the real readiness request returned HTTP `404`
-- Evidence schema/verifier: `2` / `0.2.0`
-- Evidence root: `0x2c51a3cf0ffb6eb5e8d457c5d9ab5c390ff5a957269fa67bf860a66123ee1cf6`
+- Result: `Partial` — 4/5 configured checks passed
+- Real failed check: readiness endpoint returned HTTP `404`
+- Public receipt: https://shipreceipt.vercel.app/receipt/2
 - Transaction: [`0xa77b628f8f0af4247d92ade693b6af5077b399ffa5da8183ab9f0d098190c914`](https://testnet.monadvision.com/tx/0xa77b628f8f0af4247d92ade693b6af5077b399ffa5da8183ab9f0d098190c914)
-- Public receipt URL: https://shipreceipt.vercel.app/receipt/2
+- Evidence schema/verifier: `2` / `0.2.0`
+- Evidence integrity: stored, recomputed, and Monad roots match
 
 ## Demo video
 
-Not yet published. The entrant must add the final public video URL (maximum
-three minutes) before submitting.
+`VIDEO_URL_TO_ADD_AFTER_PUBLICATION`
+
+The final script is approximately 2 minutes 22 seconds and is available in
+`docs/demo-script.md`.
 
 ## Social post
 
-Not yet published. The entrant must add the final public post URL if entering
-the Most Viral Solution prize.
+`SOCIAL_POST_URL_TO_ADD_AFTER_PUBLICATION`
 
-## Demo summary
+The ready-to-publish copy is available in `docs/social-post.md`.
 
-The demo resolves a real public repository and full commit SHA, checks a live
-deployment and health endpoint, preserves a deliberately failing readiness
-check as a failure, produces a `Partial` result, records the evidence root on
-Monad Testnet, and recomputes the root on the public receipt page.
-The recorded example is Receipt `2`: four checks passed and the readiness
-request returned a real HTTP `404`.
+## Verified release status
 
-## Current honest status
+- Application tests: 47 passed across 8 suites
+- Solidity tests: 12 passed
+- TypeScript: passed
+- ESLint: passed without warnings
+- Production build: passed
+- Receipt #1 evidence integrity: Valid
+- Receipt #2 evidence integrity: Valid
+- Durable Neon persistence: confirmed
+- Monad Testnet registry bytecode: confirmed non-empty
 
-Local implementation, application tests, contract tests, lint, type-check,
-production build, and live network smoke tests pass. The public repository is
-live. The isolated Neon production database is migrated and has passed a real
-API persistence/integrity round trip. The dedicated Vercel project is linked.
-The Monad Testnet registry deployment is confirmed and its address has non-empty
-bytecode. The Vercel Preview and Production routes pass hosted smoke tests. A
-real 4/4 Verified evidence record is durable in Neon, and receipt `1` is
-confirmed on Monad and available through the public receipt route.
-The deliberate failure evidence is durable in Neon, Receipt `2` is confirmed on
-Monad, and its stored, independently recomputed, and onchain roots match.
+## Honest scope
+
+ShipReceipt verifies selected technical checks at a recorded time. Receipts are
+self-issued, health and readiness endpoints are project-reported, and the
+selected GitHub commit is not proof that it produced the live deployment.
+ShipReceipt is not a security audit, independent certification, or guarantee of
+future availability.

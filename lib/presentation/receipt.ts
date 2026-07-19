@@ -4,7 +4,7 @@ export const SELF_ISSUED_LABEL = "Self-issued build verification";
 export const SELF_ISSUED_EXPLANATION =
   "This receipt was issued by the project owner or connected wallet. It is a tamper-evident record of selected checks, not an independent security audit.";
 export const RECEIPT_SCOPE_DISCLAIMER =
-  "ShipReceipt verifies selected technical checks at a recorded time. It is not a security audit, independent certification, or guarantee of future availability.";
+  "ShipReceipt verifies selected technical checks at a recorded time. It is not a security audit, independent certification, guarantee of future availability, or proof that the selected commit produced the deployed application.";
 export const PROJECT_REPORTED_EXPLANATION =
   "Project-reported endpoints are controlled by the application being checked. ShipReceipt records their response but does not independently guarantee that the endpoint reflects every internal dependency.";
 
@@ -12,21 +12,25 @@ export const STATUS_PRESENTATION = {
   0: {
     label: "Failed",
     icon: "×",
-    description: "The build could not satisfy the minimum verification checks.",
+    headline: "The build did not pass the minimum checks.",
+    description: "ShipReceipt could not confirm enough of the configured project targets.",
   },
   1: {
     label: "Partial",
     icon: "!",
-    description: "The build is reachable, but one or more configured checks failed.",
+    headline: "Some checks passed, but the build was not fully ready.",
+    description: "The project was reachable, but one or more configured checks failed.",
   },
   2: {
     label: "Verified",
     icon: "✓",
-    description: "All configured checks passed at the recorded time.",
+    headline: "All configured checks passed.",
+    description: "ShipReceipt observed each configured check passing at the recorded time.",
   },
   3: {
     label: "Revoked",
     icon: "–",
+    headline: "This receipt was revoked by its issuer.",
     description:
       "This receipt remains part of the public history but is no longer considered active by its issuer.",
   },
@@ -42,12 +46,32 @@ export function evidenceStatusCode(status: VerificationStatus): 0 | 1 | 2 {
 }
 
 export function checkObservation(check: Pick<VerificationCheck, "id">): {
-  label: "Independently observed" | "Project-reported";
+  label: "Independently observed" | "Project-reported endpoint";
   kind: "independent" | "project-reported";
 } {
   return check.id === "health" || check.id === "readiness"
-    ? { label: "Project-reported", kind: "project-reported" }
+    ? { label: "Project-reported endpoint", kind: "project-reported" }
     : { label: "Independently observed", kind: "independent" };
+}
+
+const CHECK_NAMES: Record<string, string> = {
+  repository: "GitHub repository",
+  deployment: "Live deployment",
+  health: "Health endpoint",
+  readiness: "Readiness endpoint",
+  contract: "Monad contract",
+};
+
+export function checkDisplayName(check: Pick<VerificationCheck, "id">): string {
+  return CHECK_NAMES[check.id] || check.id[0].toUpperCase() + check.id.slice(1);
+}
+
+export function checkTarget(check: Pick<VerificationCheck, "details">): string | null {
+  for (const key of ["target", "url", "repositoryUrl", "address"]) {
+    const value = check.details[key];
+    if (typeof value === "string" && value) return value;
+  }
+  return null;
 }
 
 export function formatRelativeAge(input: string | Date, now = new Date()): string {
@@ -101,7 +125,7 @@ export const RECEIPT_ERROR_PRESENTATION: Record<
 > = {
   "evidence-unavailable": {
     label: "Evidence unavailable",
-    description: "The stored evidence for this receipt could not be found.",
+    description: "ShipReceipt could not retrieve the evidence required for comparison.",
   },
   database: {
     label: "Evidence unavailable",
