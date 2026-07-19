@@ -47,7 +47,7 @@ as an infrastructure persistence check.
 
 - Production URL: `https://shipreceipt.vercel.app`
 - Explicit Preview URL:
-  `https://shipreceipt-as9bjsjwo-onetruehomies-projects.vercel.app`
+  `https://shipreceipt-ka7hifyi2-onetruehomies-projects.vercel.app`
 - Homepage: HTTP `200`
 - Health: HTTP `200`, service `shipreceipt`, version `1`
 - Repository check: passed
@@ -71,6 +71,19 @@ as an infrastructure persistence check.
 
 The Preview required Vercel's authenticated protection bypass; its homepage,
 health route, and Neon-backed receipt API all returned HTTP `200` after access.
+
+## Final submission-copy Preview — 19 July 2026
+
+- Deployment ID: `dpl_6f5Sk9enKLvLXSLzeZJh2DoUuyAd`
+- Source commit: `bd30267`
+- Homepage: HTTP `200`; final headline, CTAs, Monad credibility line, and
+  Receipt #2 Partial story present
+- Verification form: HTTP `200`; plain labels and final submit copy present
+- Receipt #1 API/page: HTTP `200`; dynamic title `Verified Build Receipt`
+- Receipt #2 API/page: HTTP `200`; dynamic title `Partial Build Receipt`
+- Receipt #1 independently recomputed, stored, and fresh onchain roots: matched
+- Receipt #2 independently recomputed, stored, and fresh onchain roots: matched
+- Preview error/warning logs: none found
 
 ## Hosted deliberate-failure receipt — 19 July 2026
 
