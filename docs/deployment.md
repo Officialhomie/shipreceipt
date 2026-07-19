@@ -54,6 +54,10 @@ recomputed evidence roots matched.
 - Node.js: `24.x`
 - Git repository: `https://github.com/Officialhomie/shipreceipt`
 - Production URL: `https://shipreceipt.vercel.app`
+- Final submission-copy Production deployment:
+  `https://shipreceipt-eqnj1c23u-onetruehomies-projects.vercel.app`
+- Production deployment ID: `dpl_AvLWwKQFWMXx3j9wdhrXgkD4Uxp6`
+- Production source commit: `16074ad`
 - Validated Preview URL:
   `https://shipreceipt-ka7hifyi2-onetruehomies-projects.vercel.app`
 - Preview deployment ID: `dpl_6f5Sk9enKLvLXSLzeZJh2DoUuyAd`
@@ -63,6 +67,13 @@ The Production environment contains the Neon runtime connection, Monad RPC,
 chain ID, explorer URL, registry address, anticipated application URL, and
 verification safety limits. It intentionally does not contain a deployer key or
 `MIGRATION_DATABASE_URL`.
+
+The final submission-copy Production deployment returned HTTP `200` for the
+homepage, verification form, health endpoint, both receipt APIs, and both
+wallet-free receipt pages. Its homepage title is `ShipReceipt — Proof of What
+Actually Worked`; Receipt #1 and Receipt #2 resolve to `Verified Build Receipt`
+and `Partial Build Receipt`. No runtime error or warning logs were found after
+the smoke test.
 
 ## Live verification and receipt
 

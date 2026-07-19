@@ -85,6 +85,18 @@ health route, and Neon-backed receipt API all returned HTTP `200` after access.
 - Receipt #2 independently recomputed, stored, and fresh onchain roots: matched
 - Preview error/warning logs: none found
 
+## Final submission-copy Production — 19 July 2026
+
+- Stable URL: `https://shipreceipt.vercel.app`
+- Immutable URL: `https://shipreceipt-eqnj1c23u-onetruehomies-projects.vercel.app`
+- Deployment ID: `dpl_AvLWwKQFWMXx3j9wdhrXgkD4Uxp6`
+- Source commit: `16074ad`
+- Homepage, verification form, and health endpoint: HTTP `200`
+- Receipt #1 API/page: HTTP `200`; `Verified Build Receipt` metadata
+- Receipt #2 API/page: HTTP `200`; `Partial Build Receipt` metadata
+- Final homepage promise and Receipt #2 4/5 story: present
+- Production error/warning logs after smoke test: none found
+
 ## Hosted deliberate-failure receipt — 19 July 2026
 
 - Repository: `https://github.com/Officialhomie/shipreceipt`
