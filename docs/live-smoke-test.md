@@ -42,3 +42,32 @@ This record verifies real hosted Postgres persistence through ShipReceipt's
 `POST /api/verify` and `GET /api/evidence/[id]` routes. It is intentionally
 retained because the application has no deletion workflow and is clearly named
 as an infrastructure persistence check.
+
+## Hosted release smoke test — 19 July 2026
+
+- Production URL: `https://shipreceipt.vercel.app`
+- Explicit Preview URL:
+  `https://shipreceipt-7rnxcyiez-onetruehomies-projects.vercel.app`
+- Homepage: HTTP `200`
+- Health: HTTP `200`, service `shipreceipt`, version `1`
+- Repository check: passed
+- Deployment check: passed
+- Health check: passed
+- Monad contract bytecode check: passed
+- Deterministic result: `Verified`, 4 passed / 0 failed / 4 total
+- Durable evidence ID: `62cc1c76-b44b-45ce-a9ed-12f6e3e17295`
+- Evidence root:
+  `0x21ba11847a94f510c04d5aa2f803e4840b33d5ae1f9955474c99b91e31a1f01d`
+- Independently recomputed root: exact match
+- Project registration transaction:
+  `0x3ed40e3c8ac88fbcf39100f74a82e3728db71dfd4c6aeb6e5b2d527a0e54f4cd`
+- Receipt ID: `1`
+- Receipt transaction:
+  `0x88e653a89942d8b64b1f76b569aea86ac6f4951084c5a8def46e6b06ceed4bb1`
+- Public receipt route: `https://shipreceipt.vercel.app/receipt/1`
+- Onchain readback: issuer, project, commit, deployment, evidence root, `4/4`
+  counts, timestamp, and Verified status all matched the hosted evidence.
+- Receipt metadata API and public receipt route: HTTP `200`
+
+The Preview required Vercel's authenticated protection bypass; its homepage,
+health route, and Neon-backed receipt API all returned HTTP `200` after access.

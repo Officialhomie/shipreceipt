@@ -53,16 +53,32 @@ recomputed evidence roots matched.
 - Framework: Next.js
 - Node.js: `24.x`
 - Git repository: `https://github.com/Officialhomie/shipreceipt`
-- Production URL: pending first successful production deployment
+- Production URL: `https://shipreceipt.vercel.app`
+- Validated Preview URL:
+  `https://shipreceipt-7rnxcyiez-onetruehomies-projects.vercel.app`
+- Preview deployment ID: `dpl_G48vjLs9fRxDKZncX5BVjfDaK72f`
 
 The Production environment contains the Neon runtime connection, Monad RPC,
 chain ID, explorer URL, registry address, anticipated application URL, and
 verification safety limits. It intentionally does not contain a deployer key or
 `MIGRATION_DATABASE_URL`.
 
-## Remaining release sequence
+## Live verification and receipt
 
-1. Create and smoke-test a Vercel Preview deployment.
-2. Promote to Production and confirm the stable public URL.
-3. Run a real verification, issue a real receipt, and confirm public evidence
-   integrity against the onchain root.
+- Evidence ID: `62cc1c76-b44b-45ce-a9ed-12f6e3e17295`
+- Evidence result: `Verified` (`4/4` checks)
+- Evidence root:
+  `0x21ba11847a94f510c04d5aa2f803e4840b33d5ae1f9955474c99b91e31a1f01d`
+- Independent root recomputation: matched
+- Project registration transaction:
+  `0x3ed40e3c8ac88fbcf39100f74a82e3728db71dfd4c6aeb6e5b2d527a0e54f4cd`
+- Receipt ID: `1`
+- Receipt transaction:
+  `0x88e653a89942d8b64b1f76b569aea86ac6f4951084c5a8def46e6b06ceed4bb1`
+- Public receipt URL: `https://shipreceipt.vercel.app/receipt/1`
+
+The receipt was read back from the registry and matched the issuer, project,
+commit hash, deployment hash, evidence root, `4/4` check counts, timestamp, and
+Verified status. The hosted metadata API and public receipt route returned HTTP
+`200`. The explicit Preview also returned HTTP `200` for its homepage, health
+route, and Neon-backed receipt API after Vercel protection bypass.

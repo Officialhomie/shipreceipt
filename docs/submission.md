@@ -26,7 +26,7 @@ verify that the visible evidence still matches the onchain record.
 
 ## Live URL
 
-`TODO: add verified Vercel production URL`
+https://shipreceipt.vercel.app
 
 ## GitHub URL
 
@@ -46,9 +46,9 @@ Monad Testnet — chain ID `10143`
 
 ## Example receipt
 
-- Receipt ID: `TODO`
-- Transaction: `TODO`
-- Public receipt URL: `TODO`
+- Receipt ID: `1`
+- Transaction: [`0x88e653a89942d8b64b1f76b569aea86ac6f4951084c5a8def46e6b06ceed4bb1`](https://testnet.monadvision.com/tx/0x88e653a89942d8b64b1f76b569aea86ac6f4951084c5a8def46e6b06ceed4bb1)
+- Public receipt URL: https://shipreceipt.vercel.app/receipt/1
 
 ## Demo video
 
@@ -72,4 +72,6 @@ production build, and live network smoke tests pass. The public repository is
 live. The isolated Neon production database is migrated and has passed a real
 API persistence/integrity round trip. The dedicated Vercel project is linked.
 The Monad Testnet registry deployment is confirmed and its address has non-empty
-bytecode. The Vercel Preview/Production releases and first real receipt remain.
+bytecode. The Vercel Preview and Production routes pass hosted smoke tests. A
+real 4/4 Verified evidence record is durable in Neon, and receipt `1` is
+confirmed on Monad and available through the public receipt route.

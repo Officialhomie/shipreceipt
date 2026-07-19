@@ -187,6 +187,9 @@ Current local results on 19 July 2026:
   through the real API, then independently re-hashed to the same evidence root.
 - Database permission audit: the runtime role can perform only the application
   table operations it needs and has no `CREATE` privilege on the public schema.
+- Hosted release: the Vercel homepage and health route returned `200`; all four
+  live verification checks passed; durable evidence re-hashed to the same root;
+  and Monad receipt `1` was confirmed and served from the public receipt route.
 
 The Webpack build flag avoids a Next.js 16.2.10 Turbopack server-bundling issue
 observed with the current dependency graph.
@@ -240,8 +243,10 @@ Provisioned: an isolated Neon project with migrated schema and restricted
 runtime role, a confirmed Monad Testnet registry with verified bytecode, plus a
 dedicated Vercel project linked to the public GitHub repository.
 
-Not yet complete: Vercel Preview/Production release and the first real receipt
-transaction. No deployment identifiers are fabricated in this README.
+Deployed: a validated Vercel Preview and the stable Production application at
+[`shipreceipt.vercel.app`](https://shipreceipt.vercel.app), with real Monad
+receipt [`1`](https://shipreceipt.vercel.app/receipt/1). No deployment
+identifiers are fabricated in this README.
 
 ## Known limitations
 
@@ -252,8 +257,8 @@ transaction. No deployment identifiers are fabricated in this README.
   for higher production traffic.
 - Contract receipt revocation is implemented but the hackathon UI does not yet
   expose a revoke button.
-- Browser automation and a real wallet signing flow still require final hosted
-  smoke testing.
+- Vercel Preview URLs are protected by Vercel authentication; the Production
+  receipt route is public.
 
 ## Hackathon compliance
 
