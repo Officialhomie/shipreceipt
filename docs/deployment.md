@@ -55,8 +55,8 @@ recomputed evidence roots matched.
 - Git repository: `https://github.com/Officialhomie/shipreceipt`
 - Production URL: `https://shipreceipt.vercel.app`
 - Validated Preview URL:
-  `https://shipreceipt-7rnxcyiez-onetruehomies-projects.vercel.app`
-- Preview deployment ID: `dpl_G48vjLs9fRxDKZncX5BVjfDaK72f`
+  `https://shipreceipt-as9bjsjwo-onetruehomies-projects.vercel.app`
+- Preview deployment ID: `dpl_FY2XEjSupGGGwjHY4Zk73d2kqEzd`
 
 The Production environment contains the Neon runtime connection, Monad RPC,
 chain ID, explorer URL, registry address, anticipated application URL, and

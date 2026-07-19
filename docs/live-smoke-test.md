@@ -47,7 +47,7 @@ as an infrastructure persistence check.
 
 - Production URL: `https://shipreceipt.vercel.app`
 - Explicit Preview URL:
-  `https://shipreceipt-7rnxcyiez-onetruehomies-projects.vercel.app`
+  `https://shipreceipt-as9bjsjwo-onetruehomies-projects.vercel.app`
 - Homepage: HTTP `200`
 - Health: HTTP `200`, service `shipreceipt`, version `1`
 - Repository check: passed
