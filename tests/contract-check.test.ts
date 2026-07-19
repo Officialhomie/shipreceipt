@@ -38,4 +38,11 @@ describe("Monad contract checks", () => {
     expect(check.status).toBe("failed");
     expect(check.details).toMatchObject({ failureKind: "rpc" });
   });
+
+  it("rejects an RPC connected to the wrong chain", async () => {
+    getChainId.mockResolvedValue(1);
+    const check = await runContractCheck(address);
+    expect(check.status).toBe("failed");
+    expect(check.summary).toContain("does not match expected 10143");
+  });
 });

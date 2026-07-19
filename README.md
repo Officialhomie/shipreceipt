@@ -11,6 +11,7 @@ Public repository: https://github.com/Officialhomie/shipreceipt
 
 - [Live application](https://shipreceipt.vercel.app)
 - [Verified Receipt #1](https://shipreceipt.vercel.app/receipt/1)
+- [Partial Receipt #2](https://shipreceipt.vercel.app/receipt/2)
 - [Monad registry](https://testnet.monadvision.com/address/0xAa2F6E23E54125C3B6414BD722db54cC0Ef252E3)
 - [Registry deployment transaction](https://testnet.monadvision.com/tx/0x58f96b1df3102fa63980ded1c91af8f74a6bdf810af1099756557cb438a0c2cc)
 - [Receipt #1 transaction](https://testnet.monadvision.com/tx/0x88e653a89942d8b64b1f76b569aea86ac6f4951084c5a8def46e6b06ceed4bb1)
@@ -138,7 +139,7 @@ The statuses are compatible across TypeScript and Solidity:
 - Verification requests accept only HTTP(S); production targets require HTTPS.
 - Embedded credentials, localhost, loopback, private/link-local IP ranges,
   cloud metadata targets, and private IPv6 are rejected.
-- DNS is resolved and checked before every request and redirect target.
+- DNS is resolved and preflight-checked before every request and redirect target.
 - Verification targets must use standard HTTP/HTTPS ports.
 - Redirect count, timeout, request body, and response size are bounded.
 - User-controlled headers and application secrets are never forwarded.
@@ -229,6 +230,9 @@ Current local results on 19 July 2026:
 - Hosted release: the Vercel homepage and health route returned `200`; all four
   live verification checks passed; durable evidence re-hashed to the same root;
   and Monad receipt `1` was confirmed and served from the public receipt route.
+- Deliberate-failure proof: a real readiness request returned `404`, producing
+  a durable `Partial` result with 4/5 checks passed. Receipt `2` was confirmed on
+  Monad and its Neon, recomputed, and onchain evidence roots match.
 
 The Webpack build flag avoids a Next.js 16.2.10 Turbopack server-bundling issue
 observed with the current dependency graph.
@@ -284,7 +288,8 @@ dedicated Vercel project linked to the public GitHub repository.
 
 Deployed: a validated Vercel Preview and the stable Production application at
 [`shipreceipt.vercel.app`](https://shipreceipt.vercel.app), with real Monad
-receipt [`1`](https://shipreceipt.vercel.app/receipt/1). No deployment
+receipts [`1`](https://shipreceipt.vercel.app/receipt/1) and
+[`2`](https://shipreceipt.vercel.app/receipt/2). No deployment
 identifiers are fabricated in this README.
 
 ## Known limitations

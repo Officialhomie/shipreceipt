@@ -71,3 +71,18 @@ as an infrastructure persistence check.
 
 The Preview required Vercel's authenticated protection bypass; its homepage,
 health route, and Neon-backed receipt API all returned HTTP `200` after access.
+
+## Hosted deliberate-failure receipt — 19 July 2026
+
+- Repository: `https://github.com/Officialhomie/shipreceipt`
+- Deployment: `https://shipreceipt.vercel.app/`
+- Health: `/api/health` → HTTP `200`
+- Deliberately missing readiness: `/api/readiness-deliberately-missing` → HTTP `404`
+- Monad registry bytecode: passed
+- Result: `Partial`, 4 passed / 1 failed / 5 total
+- Durable evidence ID: `66eabd12-8dd3-4ebb-80cb-b00cf2b3c5a4`
+- Evidence root: `0x2c51a3cf0ffb6eb5e8d457c5d9ab5c390ff5a957269fa67bf860a66123ee1cf6`
+- Receipt ID: `2`
+- Receipt transaction: `0xa77b628f8f0af4247d92ade693b6af5077b399ffa5da8183ab9f0d098190c914`
+- Preview receipt API and route: HTTP `200`
+- Independent root recomputation: exact match with Neon and Monad

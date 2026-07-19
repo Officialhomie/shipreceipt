@@ -1,7 +1,8 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import type { Evidence } from "@/lib/evidence/schema";
+import { evidenceSchema, type Evidence } from "@/lib/evidence/schema";
 import { ReceiptReport, type ReceiptReportData } from "@/components/receipt-report";
+import { RECEIPT_ERROR_PRESENTATION } from "@/lib/presentation/receipt";
 
 const evidence: Evidence = {
   version: "2",
@@ -81,6 +82,23 @@ describe("public receipt presentation", () => {
 
   it("makes an evidence mismatch visually explicit", () => {
     expect(html({ integrity: "invalid" })).toContain("Evidence integrity: Invalid");
+  });
+
+  it("keeps legacy Receipt #1 evidence renderable", () => {
+    const legacy = structuredClone(evidence) as Record<string, unknown>;
+    legacy.version = "1";
+    delete legacy.schemaVersion;
+    delete legacy.verifierVersion;
+    const output = html({ evidence: evidenceSchema.parse(legacy) });
+    expect(output).toContain("Evidence schema v1");
+    expect(output).toContain("legacy v1 verifier");
+  });
+
+  it("provides a distinct evidence-unavailable state", () => {
+    expect(RECEIPT_ERROR_PRESENTATION["evidence-unavailable"]).toEqual({
+      label: "Evidence unavailable",
+      description: "The stored evidence for this receipt could not be found.",
+    });
   });
 
   it.each([

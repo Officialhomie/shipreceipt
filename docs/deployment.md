@@ -82,3 +82,22 @@ commit hash, deployment hash, evidence root, `4/4` check counts, timestamp, and
 Verified status. The hosted metadata API and public receipt route returned HTTP
 `200`. The explicit Preview also returned HTTP `200` for its homepage, health
 route, and Neon-backed receipt API after Vercel protection bypass.
+
+## Partial receipt audit — 19 July 2026
+
+- Evidence ID: `66eabd12-8dd3-4ebb-80cb-b00cf2b3c5a4`
+- Evidence schema: `2`
+- Verifier version: `0.2.0`
+- Result: `Partial` (`4/5` checks)
+- Deliberate readiness observation: HTTP `404`
+- Evidence root: `0x2c51a3cf0ffb6eb5e8d457c5d9ab5c390ff5a957269fa67bf860a66123ee1cf6`
+- Receipt ID: `2`
+- Receipt transaction: `0xa77b628f8f0af4247d92ade693b6af5077b399ffa5da8183ab9f0d098190c914`
+- Issuer: `0x84752F9589eA3698bb879b3C4112C110ecb9fA65`
+- Public receipt URL: `https://shipreceipt.vercel.app/receipt/2`
+
+The missing readiness path was requested over the network and returned a real
+failure; it was not hardcoded. The evidence was fetched back from Neon and its
+canonical root was independently recomputed. The Neon, recomputed, and Monad
+roots match exactly. Direct contract readback returned Partial status `1`,
+`4/5` counts, and the expected issuer.

@@ -54,6 +54,15 @@ Monad Testnet — chain ID `10143`
 - Transaction: [`0x88e653a89942d8b64b1f76b569aea86ac6f4951084c5a8def46e6b06ceed4bb1`](https://testnet.monadvision.com/tx/0x88e653a89942d8b64b1f76b569aea86ac6f4951084c5a8def46e6b06ceed4bb1)
 - Public receipt URL: https://shipreceipt.vercel.app/receipt/1
 
+## Deliberate-failure receipt
+
+- Receipt ID: `2`
+- Result: `Partial` — 4/5 passed; the real readiness request returned HTTP `404`
+- Evidence schema/verifier: `2` / `0.2.0`
+- Evidence root: `0x2c51a3cf0ffb6eb5e8d457c5d9ab5c390ff5a957269fa67bf860a66123ee1cf6`
+- Transaction: [`0xa77b628f8f0af4247d92ade693b6af5077b399ffa5da8183ab9f0d098190c914`](https://testnet.monadvision.com/tx/0xa77b628f8f0af4247d92ade693b6af5077b399ffa5da8183ab9f0d098190c914)
+- Public receipt URL: https://shipreceipt.vercel.app/receipt/2
+
 ## Demo video
 
 Not yet published. The entrant must add the final public video URL (maximum
@@ -70,6 +79,8 @@ The demo resolves a real public repository and full commit SHA, checks a live
 deployment and health endpoint, preserves a deliberately failing readiness
 check as a failure, produces a `Partial` result, records the evidence root on
 Monad Testnet, and recomputes the root on the public receipt page.
+The recorded example is Receipt `2`: four checks passed and the readiness
+request returned a real HTTP `404`.
 
 ## Current honest status
 
@@ -81,3 +92,5 @@ The Monad Testnet registry deployment is confirmed and its address has non-empty
 bytecode. The Vercel Preview and Production routes pass hosted smoke tests. A
 real 4/4 Verified evidence record is durable in Neon, and receipt `1` is
 confirmed on Monad and available through the public receipt route.
+The deliberate failure evidence is durable in Neon, Receipt `2` is confirmed on
+Monad, and its stored, independently recomputed, and onchain roots match.
