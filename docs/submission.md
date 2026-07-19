@@ -38,11 +38,11 @@ Monad Testnet — chain ID `10143`
 
 ## Contract address
 
-`TODO: add address after deployment and bytecode confirmation`
+[`0xAa2F6E23E54125C3B6414BD722db54cC0Ef252E3`](https://testnet.monadvision.com/address/0xAa2F6E23E54125C3B6414BD722db54cC0Ef252E3)
 
 ## Contract deployment transaction
 
-`TODO: add confirmed transaction and explorer URL`
+[`0x58f96b1df3102fa63980ded1c91af8f74a6bdf810af1099756557cb438a0c2cc`](https://testnet.monadvision.com/tx/0x58f96b1df3102fa63980ded1c91af8f74a6bdf810af1099756557cb438a0c2cc)
 
 ## Example receipt
 
@@ -68,7 +68,8 @@ Monad Testnet, and recomputes the root on the public receipt page.
 ## Current honest status
 
 Local implementation, application tests, contract tests, lint, type-check,
-production build, and a live network smoke test pass. The public repository is
-live. Contract deployment, Vercel deployment, durable production database, and
-the first real receipt transaction remain pending hosted configuration and a
-funded testnet wallet.
+production build, and live network smoke tests pass. The public repository is
+live. The isolated Neon production database is migrated and has passed a real
+API persistence/integrity round trip. The dedicated Vercel project is linked.
+The Monad Testnet registry deployment is confirmed and its address has non-empty
+bytecode. The Vercel Preview/Production releases and first real receipt remain.

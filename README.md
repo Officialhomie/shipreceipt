@@ -38,8 +38,8 @@ or secrets onchain.
 - Network: Monad Testnet
 - Chain ID: `10143`
 - Currency: `MON`
-- Registry address: not deployed yet
-- Deployment transaction: not available yet
+- Registry address: [`0xAa2F6E23E54125C3B6414BD722db54cC0Ef252E3`](https://testnet.monadvision.com/address/0xAa2F6E23E54125C3B6414BD722db54cC0Ef252E3)
+- Deployment transaction: [`0x58f96b1d…38a0c2cc`](https://testnet.monadvision.com/tx/0x58f96b1df3102fa63980ded1c91af8f74a6bdf810af1099756557cb438a0c2cc)
 
 ## Architecture
 
@@ -83,9 +83,10 @@ sorted before JSON serialization, then the UTF-8 bytes are hashed with
 intentional inputs to the hash. Environment variables, arbitrary GitHub API
 responses, and unbounded target bodies are never included.
 
-In production, `DATABASE_URL` is mandatory. ShipReceipt creates two namespaced
-Postgres tables for evidence and receipt metadata. Local development can use an
-explicitly labelled in-memory adapter; the API reports
+In production, `DATABASE_URL` is mandatory. An explicit migration creates two
+namespaced Postgres tables for evidence and receipt metadata; the restricted
+application role cannot create or alter schema objects. Local development can
+use an explicitly labelled in-memory adapter; the API reports
 `persistence: development-memory` and the UI warns that it is not durable.
 
 ## Smart contract
@@ -133,14 +134,24 @@ For real public receipts, configure `DATABASE_URL`. Onchain recording also
 requires `NEXT_PUBLIC_SHIPRECEIPT_CONTRACT_ADDRESS` after registry deployment.
 The application runtime never needs `DEPLOYER_PRIVATE_KEY`.
 
+Apply and audit the database with separate owner and runtime connection strings:
+
+```bash
+MIGRATION_DATABASE_URL="..." npm run db:migrate
+DATABASE_URL="..." npm run db:check
+```
+
+`MIGRATION_DATABASE_URL` is migration-only and must not be configured in the
+hosted application. See `docs/deployment.md` for the live infrastructure record.
+
 ## Environment variables
 
 See `.env.example`. Important boundaries:
 
 - `NEXT_PUBLIC_*` values are intentionally browser-visible.
 - `MONAD_RPC_URL`, `GITHUB_TOKEN`, and `DATABASE_URL` are server-only.
-- `DEPLOYER_PRIVATE_KEY` is read only by the Foundry deployment script. Inject
-  it from a secure shell or keystore; never commit it or paste it into chat.
+- The Foundry deployment script uses an encrypted keystore signer supplied on
+  the command line. The application and Vercel never receive a private key.
 
 ## Validation
 
@@ -161,7 +172,7 @@ forge build
 forge test -vvv
 ```
 
-Current local results on 18 July 2026:
+Current local results on 19 July 2026:
 
 - Application unit tests: 30 passed.
 - Contract tests: 12 passed.
@@ -172,19 +183,25 @@ Current local results on 18 July 2026:
   passed, `https://example.com` deployment and health checks passed, deliberate
   missing readiness path returned `404`, and final result remained `Partial`
   with 3/4 checks passed.
+- Neon runtime round trip: a `Verified` evidence record was inserted and fetched
+  through the real API, then independently re-hashed to the same evidence root.
+- Database permission audit: the runtime role can perform only the application
+  table operations it needs and has no `CREATE` privilege on the public schema.
 
 The Webpack build flag avoids a Next.js 16.2.10 Turbopack server-bundling issue
 observed with the current dependency graph.
 
 ## Contract deployment
 
-Fund a dedicated deployment wallet with testnet MON and configure secrets in
-your shell or secure runner. Do not place them in command history.
+Fund a dedicated encrypted Foundry account with testnet MON. Keep its password
+in a user-only local file and do not place either secret in command history.
 
 ```bash
 cd contracts
 forge script script/Deploy.s.sol:DeployShipReceipt \
   --rpc-url "$MONAD_RPC_URL" \
+  --account shipreceipt-deployer \
+  --password-file ../.env.deploy.password \
   --broadcast
 ```
 
@@ -219,12 +236,12 @@ evidence hashing, Postgres adapter, registry contract, wallet transaction flow,
 public receipt integrity view, responsive UI, documentation, and submission
 draft.
 
-Published: the public GitHub repository and its clean `main` history.
+Provisioned: an isolated Neon project with migrated schema and restricted
+runtime role, a confirmed Monad Testnet registry with verified bytecode, plus a
+dedicated Vercel project linked to the public GitHub repository.
 
-Not yet deployed: Monad registry, durable hosted database, Vercel application,
-and real receipt transaction. Those steps require a funded testnet deployment
-wallet and hosted environment configuration. No deployment identifiers are
-fabricated in this README.
+Not yet complete: Vercel Preview/Production release and the first real receipt
+transaction. No deployment identifiers are fabricated in this README.
 
 ## Known limitations
 

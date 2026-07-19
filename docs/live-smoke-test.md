@@ -22,3 +22,23 @@ Observed results:
 This test proves live failure preservation and local network behavior. It is not
 evidence of Monad registry deployment, a real receipt transaction, durable
 production storage, or hosted application availability.
+
+## Durable Neon round trip — 18 July 2026
+
+- Neon project: `crimson-lake-06624566` (`shipreceipt-production`)
+- Database: `shipreceipt`
+- Migration: `001_initial.sql` applied successfully
+- Runtime role: `shipreceipt_runtime`
+- Schema creation privilege: denied
+- Application table privileges: verified
+- API evidence ID: `f91a1a53-6c67-4d28-8896-20518b4a9114`
+- Result: `Verified`
+- Persistence: `durable`
+- Stored evidence root:
+  `0xa3d91e45e024253fe785a6051b6ecdb138e73eb9f35970d2914663b6c3b40063`
+- Independently recomputed root: exact match
+
+This record verifies real hosted Postgres persistence through ShipReceipt's
+`POST /api/verify` and `GET /api/evidence/[id]` routes. It is intentionally
+retained because the application has no deletion workflow and is clearly named
+as an infrastructure persistence check.

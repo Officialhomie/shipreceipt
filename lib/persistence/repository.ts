@@ -55,19 +55,14 @@ class PostgresEvidenceRepository implements EvidenceRepository {
   private ensureSchema(): Promise<void> {
     if (!this.initialized) {
       this.initialized = (async () => {
-        await this.sql`create table if not exists shipreceipt_evidence (
-          id uuid primary key,
-          evidence jsonb not null,
-          evidence_root text not null,
-          created_at timestamptz not null default now()
-        )`;
-        await this.sql`create table if not exists shipreceipt_receipts (
-          receipt_id text primary key,
-          evidence_id uuid not null references shipreceipt_evidence(id),
-          transaction_hash text not null,
-          contract_address text not null,
-          created_at timestamptz not null default now()
-        )`;
+        const [state] = await this.sql`
+          select
+            to_regclass('public.shipreceipt_evidence') is not null as evidence_table,
+            to_regclass('public.shipreceipt_receipts') is not null as receipts_table
+        `;
+        if (!state?.evidence_table || !state?.receipts_table) {
+          throw new Error("ShipReceipt database migrations have not been applied");
+        }
       })();
     }
     return this.initialized;

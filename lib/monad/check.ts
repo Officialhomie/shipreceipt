@@ -7,7 +7,10 @@ export async function runContractCheck(address: string): Promise<VerificationChe
   const started = performance.now();
   try {
     if (!isAddress(address)) throw new Error("Contract address is invalid");
-    const rpcUrl = process.env.MONAD_RPC_URL || process.env.NEXT_PUBLIC_MONAD_RPC_URL;
+    const rpcUrl =
+      process.env.MONAD_RPC_URL ||
+      process.env.NEXT_PUBLIC_MONAD_RPC_URL ||
+      "https://testnet-rpc.monad.xyz";
     if (!rpcUrl) throw new Error("Monad RPC URL is not configured");
     const client = createPublicClient({ chain: monadTestnet, transport: http(rpcUrl) });
     const chainId = await client.getChainId();
@@ -42,4 +45,3 @@ export async function runContractCheck(address: string): Promise<VerificationChe
     };
   }
 }
-
