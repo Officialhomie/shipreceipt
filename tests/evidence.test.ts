@@ -54,5 +54,23 @@ describe("canonical evidence", () => {
   it("rejects malformed evidence", () => {
     expect(() => evidenceSchema.parse({ version: "1", checks: [] })).toThrow();
   });
-});
 
+  it("keeps legacy v1 evidence valid while accepting versioned v2 evidence", () => {
+    const legacy = evidence();
+    expect(evidenceSchema.parse(legacy).version).toBe("1");
+    expect(evidenceSchema.parse({
+      ...legacy,
+      version: "2",
+      schemaVersion: "2",
+      verifierVersion: "0.2.0",
+    }).version).toBe("2");
+  });
+
+  it("rejects v2 evidence without an explicit verifier version", () => {
+    expect(() => evidenceSchema.parse({
+      ...evidence(),
+      version: "2",
+      schemaVersion: "2",
+    })).toThrow();
+  });
+});

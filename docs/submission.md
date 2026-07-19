@@ -6,8 +6,9 @@ ShipReceipt
 
 ## Short description
 
-ShipReceipt verifies a live software deployment, binds the evidence to a GitHub
-commit, and records a tamper-evident build receipt on Monad.
+ShipReceipt is a build-verification tool for AI-assisted software delivery. It
+records what actually passed or failed in a tamper-evident, self-issued receipt
+on Monad.
 
 ## Problem
 
@@ -18,11 +19,14 @@ edited or deleted after the fact.
 
 ## Solution
 
-ShipReceipt performs live verification checks against a public repository and
-deployed application, packages the results into canonical evidence, hashes that
-evidence, and records its selected commit, result, timestamp, and evidence root
-through a smart contract on Monad. Anyone can inspect the public receipt and
-verify that the visible evidence still matches the onchain record.
+ShipReceipt performs live technical checks against a public repository,
+deployed application, configured endpoints, and optional Monad contract. It
+packages every pass and failure into versioned canonical evidence, hashes that
+evidence, and records its selected commit, result, timestamp, issuer, and
+evidence root through a smart contract on Monad. Anyone can inspect the public
+receipt and verify that the visible evidence still matches the onchain record.
+Receipts explicitly identify themselves as self-issued build verifications,
+not independent audits or security certifications.
 
 ## Live URL
 
@@ -52,11 +56,13 @@ Monad Testnet — chain ID `10143`
 
 ## Demo video
 
-`TODO: add public video URL, maximum 3 minutes`
+Not yet published. The entrant must add the final public video URL (maximum
+three minutes) before submitting.
 
 ## Social post
 
-`TODO: add public post URL for the Most Viral Solution prize`
+Not yet published. The entrant must add the final public post URL if entering
+the Most Viral Solution prize.
 
 ## Demo summary
 

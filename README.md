@@ -1,12 +1,23 @@
 # ShipReceipt
 
-> AI can claim it shipped. ShipReceipt proves it.
+> AI can claim it shipped. ShipReceipt proves what actually worked.
 
-ShipReceipt verifies a live software deployment, binds the evidence to a real
-public GitHub commit, and records a tamper-evident verification receipt on
+ShipReceipt is a build-verification tool for AI-assisted software delivery. It
+observes a live deployment and selected technical targets, resolves a real
+public GitHub commit, and records a tamper-evident, self-issued receipt on
 Monad.
 
 Public repository: https://github.com/Officialhomie/shipreceipt
+
+- [Live application](https://shipreceipt.vercel.app)
+- [Verified Receipt #1](https://shipreceipt.vercel.app/receipt/1)
+- [Monad registry](https://testnet.monadvision.com/address/0xAa2F6E23E54125C3B6414BD722db54cC0Ef252E3)
+- [Registry deployment transaction](https://testnet.monadvision.com/tx/0x58f96b1df3102fa63980ded1c91af8f74a6bdf810af1099756557cb438a0c2cc)
+- [Receipt #1 transaction](https://testnet.monadvision.com/tx/0x88e653a89942d8b64b1f76b569aea86ac6f4951084c5a8def46e6b06ceed4bb1)
+
+Demo flow: open Receipt #1 without a wallet, inspect the checks and integrity
+result, then run a new verification with one deliberately missing endpoint to
+see ShipReceipt preserve a real failure as `Partial`.
 
 ## Problem
 
@@ -75,11 +86,28 @@ The Solidity workspace is isolated under `contracts/`.
 
 No AI model determines the verification result.
 
+## Trust model
+
+Receipts are **self-issued build verifications**. The connected project-owner
+wallet is the public issuer; ShipReceipt is not an independent auditor or
+certification authority. Repository, deployment, and contract observations are
+performed by ShipReceipt. Health and readiness endpoints are project-reported:
+ShipReceipt independently records their HTTP response but cannot guarantee that
+an endpoint reflects every internal dependency.
+
+Every result is a historical snapshot. `Verified` means all configured checks
+passed at that recorded time; `Partial` means the build was reachable but one
+or more configured checks failed; `Failed` means the minimum verification
+checks were not satisfied; and `Revoked` preserves the receipt in history while
+marking it inactive at the issuer's request.
+
 ## Evidence model
 
-Evidence schema version `1` is validated with Zod. Object keys are recursively
-sorted before JSON serialization, then the UTF-8 bytes are hashed with
-`keccak256`. Timestamps are captured once as evidence and therefore are
+New evidence uses schema version `2`, with explicit `schemaVersion` and semantic
+`verifierVersion` fields. Legacy version `1` evidence remains readable and
+hash-compatible. All evidence is validated with Zod. Object keys are
+recursively sorted before JSON serialization, then the UTF-8 bytes are hashed
+with `keccak256`. Timestamps are captured once as evidence and therefore are
 intentional inputs to the hash. Environment variables, arbitrary GitHub API
 responses, and unbounded target bodies are never included.
 
@@ -111,6 +139,7 @@ The statuses are compatible across TypeScript and Solidity:
 - Embedded credentials, localhost, loopback, private/link-local IP ranges,
   cloud metadata targets, and private IPv6 are rejected.
 - DNS is resolved and checked before every request and redirect target.
+- Verification targets must use standard HTTP/HTTPS ports.
 - Redirect count, timeout, request body, and response size are bounded.
 - User-controlled headers and application secrets are never forwarded.
 - GitHub tokens, database credentials, RPC credentials, and deployer keys remain
@@ -118,6 +147,16 @@ The statuses are compatible across TypeScript and Solidity:
 - Contract calls are simulated before wallet submission. Success requires a
   confirmed transaction, decoded `ReceiptIssued` event, and matching contract
   read.
+- Receipt metadata is accepted only when the configured registry, successful
+  transaction, emitted event, onchain fields, and durable evidence all match;
+  saved metadata is immutable.
+
+The worker performs application-layer DNS preflight validation, but the Node
+fetch connection is not pinned to the validated IP. A malicious domain could
+attempt DNS rebinding between resolution and connection. Production deployments
+should therefore keep the verifier in a network-isolated worker with outbound
+firewall rules that deny private, link-local, and metadata ranges. This is a
+documented residual risk, not a claim of complete SSRF elimination.
 
 ## Local setup
 
@@ -174,7 +213,7 @@ forge test -vvv
 
 Current local results on 19 July 2026:
 
-- Application unit tests: 30 passed.
+- Application unit tests: 44 passed across 8 suites.
 - Contract tests: 12 passed.
 - TypeScript: passed in strict mode.
 - ESLint: passed.
@@ -252,6 +291,8 @@ identifiers are fabricated in this README.
 
 - No deployment-provider attestation currently proves that the live deployment
   was built from the selected commit.
+- Application-layer DNS checks are not socket/IP-pinned; production should add
+  worker-level egress isolation against DNS rebinding.
 - Public GitHub API use without a token has a lower rate limit.
 - The basic in-process rate limiter should be replaced by a distributed limiter
   for higher production traffic.

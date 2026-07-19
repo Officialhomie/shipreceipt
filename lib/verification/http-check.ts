@@ -96,9 +96,18 @@ export async function runHttpCheck(
       completedAt,
       durationMs: Math.round(performance.now() - started),
       summary: `${label} returned HTTP ${result.status}`,
-      details: { ...result },
+      details: {
+        ...result,
+        target: result.url,
+        expectedStatus: "200-299",
+        observationSource:
+          id === "health" || id === "readiness" ? "project-reported" : "independent",
+      },
     };
   } catch (error) {
+    const timedOut =
+      error instanceof Error &&
+      (error.name === "TimeoutError" || /timed out|timeout/i.test(error.message));
     return {
       id,
       type: "http",
@@ -106,8 +115,17 @@ export async function runHttpCheck(
       startedAt,
       completedAt: new Date().toISOString(),
       durationMs: Math.round(performance.now() - started),
-      summary: `${label} failed: ${error instanceof Error ? error.message : "unknown error"}`,
-      details: { url },
+      summary: timedOut
+        ? `${label} timed out before a response was completed`
+        : `${label} failed: ${error instanceof Error ? error.message : "unknown error"}`,
+      details: {
+        target: url,
+        url,
+        expectedStatus: "200-299",
+        observationSource:
+          id === "health" || id === "readiness" ? "project-reported" : "independent",
+        failureKind: timedOut ? "timeout" : "request",
+      },
     };
   }
 }

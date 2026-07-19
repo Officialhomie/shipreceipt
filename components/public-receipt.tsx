@@ -1,20 +1,123 @@
 "use client";
 
-import { useEffect,useState } from "react";
-import { createPublicClient,http } from "viem";
+import { useEffect, useState } from "react";
+import { createPublicClient, http } from "viem";
 import { monadTestnet } from "@/lib/config/monad";
 import { registryAbi } from "@/lib/monad/registry";
 import { hashEvidence } from "@/lib/evidence/canonical";
-import type { Evidence } from "@/lib/evidence/schema";
+import { evidenceSchema } from "@/lib/evidence/schema";
+import {
+  RECEIPT_ERROR_PRESENTATION,
+  type ReceiptLoadErrorKind,
+} from "@/lib/presentation/receipt";
+import { ReceiptReport, type ReceiptReportData } from "./receipt-report";
 
-interface ViewData { evidence:Evidence; evidenceRoot:`0x${string}`; transactionHash:`0x${string}`; contractAddress:`0x${string}`; issuer:string; projectId:string; verifiedAt:bigint; status:number; passed:number; total:number; integrity:"valid"|"invalid"; }
+interface ReceiptApiBody {
+  error?: string;
+  code?: string;
+  metadata?: {
+    transactionHash: `0x${string}`;
+    contractAddress: `0x${string}`;
+  };
+  evidence?: {
+    evidence: unknown;
+    evidenceRoot: `0x${string}`;
+  };
+}
 
-export function PublicReceipt({receiptId}:{receiptId:string}){
-  const [data,setData]=useState<ViewData|null>(null);const [error,setError]=useState("");
-  useEffect(()=>{let cancelled=false;(async()=>{try{const response=await fetch(`/api/receipts/${receiptId}`,{cache:"no-store"});const body=await response.json();if(!response.ok||!body.evidence)throw new Error(body.error||"Evidence unavailable");const evidence=body.evidence.evidence as Evidence;const contractAddress=body.metadata.contractAddress as `0x${string}`;const client=createPublicClient({chain:monadTestnet,transport:http(process.env.NEXT_PUBLIC_MONAD_RPC_URL||"https://testnet-rpc.monad.xyz")});const receipt=await client.readContract({address:contractAddress,abi:registryAbi,functionName:"getReceipt",args:[BigInt(receiptId)]});const computed=hashEvidence(evidence);const integrity=computed.toLowerCase()===receipt.evidenceRoot.toLowerCase()&&computed.toLowerCase()===String(body.evidence.evidenceRoot).toLowerCase()?"valid":"invalid";if(!cancelled)setData({evidence,evidenceRoot:receipt.evidenceRoot,transactionHash:body.metadata.transactionHash,contractAddress,issuer:receipt.issuer,projectId:receipt.projectId,verifiedAt:receipt.verifiedAt,status:receipt.status,passed:receipt.passedChecks,total:receipt.totalChecks,integrity});}catch(cause){if(!cancelled)setError(cause instanceof Error?cause.message:"Evidence unavailable");}})();return()=>{cancelled=true};},[receiptId]);
-  if(error)return <div className="panel"><div className="error-box">Evidence unavailable: {error}</div></div>;if(!data)return <div className="panel progress"><span className="spinner"/>Reading evidence and Monad receipt…</div>;
-  const labels=["Failed","Partial","Verified","Revoked"];const explorer=process.env.NEXT_PUBLIC_MONAD_EXPLORER_URL||"https://testnet.monadvision.com";return <article className="panel"><div className="result-head"><div><span className="eyebrow">{data.integrity==="valid"?"Evidence integrity: Valid":"Evidence integrity: Invalid"}</span><h2 style={{fontFamily:"Georgia, serif",fontSize:36,margin:"13px 0 3px"}}>{data.evidence.project.name}</h2><p style={{color:"var(--muted)",margin:0}}>{data.evidence.project.repository}</p></div><span className={`status ${labels[data.status]?.toLowerCase()}`}>{labels[data.status]||"Unknown"}</span></div>
-  <div className="metric-row"><div className="metric"><strong>{data.passed}</strong><span>Passed</span></div><div className="metric"><strong>{data.total-data.passed}</strong><span>Failed</span></div><div className="metric"><strong>{new Date(Number(data.verifiedAt)*1000).toLocaleString()}</strong><span>Verified at</span></div></div>
-  <div className="proof-row"><span>Issuer wallet</span><b className="hash">{data.issuer}</b></div><div className="proof-row"><span>Project identifier</span><b className="hash">{data.projectId}</b></div><div className="proof-row"><span>Selected commit</span><a href={`${data.evidence.project.repository}/commit/${data.evidence.project.commit}`} target="_blank" rel="noreferrer"><b className="hash">{data.evidence.project.commit}</b></a></div><div className="proof-row"><span>Deployment</span><a href={data.evidence.deployment.url} target="_blank" rel="noreferrer"><b>{data.evidence.deployment.url}</b></a></div><div className="proof-row"><span>Registry contract</span><a href={`${explorer}/address/${data.contractAddress}`} target="_blank" rel="noreferrer"><b className="hash">{data.contractAddress}</b></a></div><div className="proof-row"><span>Transaction</span><a href={`${explorer}/tx/${data.transactionHash}`} target="_blank" rel="noreferrer"><b className="hash">{data.transactionHash}</b></a></div>
-  <p style={{fontSize:13,color:"var(--muted)",margin:"24px 0 7px"}}>Onchain evidence root</p><div className="hash">{data.evidenceRoot}</div><h3 style={{fontFamily:"Georgia, serif",fontSize:25,marginTop:30}}>Individual checks</h3><div className="check-list">{data.evidence.checks.map(check=><div className="check" key={check.id}><span className={`check-icon ${check.status}`}>{check.status==="passed"?"✓":"!"}</span><div><b>{check.id}</b><p>{check.summary}</p></div><time>{check.durationMs}ms</time></div>)}</div></article>;
+function apiErrorKind(status: number, code?: string): ReceiptLoadErrorKind {
+  if (status === 404 || code === "EVIDENCE_NOT_FOUND" || code === "RECEIPT_NOT_FOUND") {
+    return "evidence-unavailable";
+  }
+  if (status === 422 || code === "EVIDENCE_SCHEMA_UNSUPPORTED") return "schema";
+  if (status === 503 || code?.includes("STORE")) return "database";
+  return "unknown";
+}
+
+export function PublicReceipt({ receiptId }: { receiptId: string }) {
+  const [data, setData] = useState<ReceiptReportData | null>(null);
+  const [error, setError] = useState<ReceiptLoadErrorKind | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      let body: ReceiptApiBody;
+      try {
+        const response = await fetch(`/api/receipts/${receiptId}`, { cache: "no-store" });
+        body = (await response.json()) as ReceiptApiBody;
+        if (!response.ok || !body.evidence || !body.metadata) {
+          if (!cancelled) setError(apiErrorKind(response.status, body.code));
+          return;
+        }
+      } catch {
+        if (!cancelled) setError("database");
+        return;
+      }
+
+      const parsed = evidenceSchema.safeParse(body.evidence.evidence);
+      if (!parsed.success) {
+        if (!cancelled) setError("schema");
+        return;
+      }
+
+      const evidence = parsed.data;
+      const contractAddress = body.metadata.contractAddress;
+      const client = createPublicClient({
+        chain: monadTestnet,
+        transport: http(
+          process.env.NEXT_PUBLIC_MONAD_RPC_URL || "https://testnet-rpc.monad.xyz",
+        ),
+      });
+
+      try {
+        const receipt = await client.readContract({
+          address: contractAddress,
+          abi: registryAbi,
+          functionName: "getReceipt",
+          args: [BigInt(receiptId)],
+        });
+        const latestReceiptId = await client.readContract({
+          address: contractAddress,
+          abi: registryAbi,
+          functionName: "latestReceiptIds",
+          args: [receipt.projectId],
+        });
+        const computed = hashEvidence(evidence);
+        const integrity =
+          computed.toLowerCase() === receipt.evidenceRoot.toLowerCase() &&
+          computed.toLowerCase() === body.evidence.evidenceRoot.toLowerCase()
+            ? "valid"
+            : "invalid";
+        if (!cancelled) {
+          document.title = `ShipReceipt #${receiptId} — ${["Failed", "Partial", "Verified", "Revoked"][receipt.status]} Build Receipt`;
+          setData({
+            evidence,
+            evidenceRoot: receipt.evidenceRoot,
+            storedEvidenceRoot: body.evidence.evidenceRoot,
+            transactionHash: body.metadata.transactionHash,
+            contractAddress,
+            issuer: receipt.issuer,
+            projectId: receipt.projectId,
+            verifiedAt: receipt.verifiedAt,
+            status: receipt.status as 0 | 1 | 2 | 3,
+            passed: receipt.passedChecks,
+            total: receipt.totalChecks,
+            integrity,
+            latestReceiptId,
+          });
+        }
+      } catch {
+        if (!cancelled) setError("rpc");
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [receiptId]);
+
+  if (error) {
+    const presentation = RECEIPT_ERROR_PRESENTATION[error];
+    return <div className="panel receipt-error" role="alert"><strong>{presentation.label}</strong><p>{presentation.description}</p></div>;
+  }
+  if (!data) return <div className="panel progress" aria-live="polite"><span className="spinner" />Reading stored evidence and the Monad receipt…</div>;
+
+  return <ReceiptReport receiptId={receiptId} data={data} explorer={process.env.NEXT_PUBLIC_MONAD_EXPLORER_URL || "https://testnet.monadvision.com"} />;
 }

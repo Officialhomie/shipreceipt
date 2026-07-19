@@ -30,7 +30,15 @@ export async function runContractCheck(address: string): Promise<VerificationChe
       completedAt: new Date().toISOString(),
       durationMs: Math.round(performance.now() - started),
       summary: exists ? "Contract bytecode exists on Monad Testnet" : "No contract bytecode exists at this address",
-      details: { address, chainId, blockNumber: blockNumber.toString(), bytecodeExists: exists },
+      details: {
+        target: address,
+        address,
+        chainId,
+        expectedChainId: monadTestnet.id,
+        blockNumber: blockNumber.toString(),
+        bytecodeExists: exists,
+        observationSource: "independent",
+      },
     };
   } catch (error) {
     return {
@@ -41,7 +49,13 @@ export async function runContractCheck(address: string): Promise<VerificationChe
       completedAt: new Date().toISOString(),
       durationMs: Math.round(performance.now() - started),
       summary: `Contract check failed: ${error instanceof Error ? error.message : "unknown error"}`,
-      details: { address },
+      details: {
+        target: address,
+        address,
+        expectedChainId: monadTestnet.id,
+        observationSource: "independent",
+        failureKind: isAddress(address) ? "rpc" : "validation",
+      },
     };
   }
 }

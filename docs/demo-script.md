@@ -8,9 +8,9 @@ work. A report can also be changed later.”
 
 ## 0:25–0:45 — Product
 
-“ShipReceipt independently performs live checks, binds the result to a real
-GitHub commit, hashes canonical evidence, and records a tamper-evident receipt
-on Monad.”
+“ShipReceipt performs live technical checks, selects a real GitHub commit for
+the verification, hashes canonical evidence, and records a tamper-evident,
+self-issued receipt on Monad.”
 
 Open the verification form. Briefly point out that no GitHub token, private key,
 or other secret is entered by the user.
@@ -30,26 +30,28 @@ result is `Partial`.
 ## 1:25–2:10 — Evidence review
 
 Show the full commit SHA, deployment URL, individual reasons and durations,
-3/4 check counts, timestamp, and canonical evidence root. Say:
+4/5 check counts, timestamp, and canonical evidence root. Say:
 
 “ShipReceipt selects this repository commit for the verification. It does not
 overclaim that the deployment came from that commit.”
 
 ## 2:10–2:40 — Monad transaction
 
-Connect the owner wallet on Monad Testnet. Show exactly what the registry will
-store, then select `Record receipt on Monad`. Point out that opening the wallet
-is not success: ShipReceipt waits for confirmation, decodes `ReceiptIssued`, and
-reads the receipt back.
+Connect the owner wallet on Monad Testnet. Explain that the wallet is the public
+issuer and this is self-issued build verification—not an independent audit.
+Show exactly what the registry will store, then select `Record self-issued
+receipt`. Point out that opening the wallet is not success: ShipReceipt waits
+for confirmation, decodes `ReceiptIssued`, and reads the receipt back.
 
 ## 2:40–3:00 — Public proof
 
-On the public receipt page, show the issuer, selected commit, deployment,
-contract, transaction link, failed readiness check, and:
+On the public receipt page, show the self-issued label, issuer, selected commit,
+snapshot age, independently observed versus project-reported labels, deployment,
+contract transaction link, failed readiness check, and:
 
 `Evidence integrity: Valid`
 
-Close with: “AI can claim it shipped. ShipReceipt proves it.”
+Close with: “AI can claim it shipped. ShipReceipt proves what actually worked.”
 
 ## Pre-recording checklist
 
@@ -59,4 +61,3 @@ Close with: “AI can claim it shipped. ShipReceipt proves it.”
 - Run one rehearsal without recording.
 - Keep the browser zoom and wallet popup readable.
 - Never show `.env.local`, terminal history, private keys, or provider tokens.
-

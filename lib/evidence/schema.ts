@@ -14,8 +14,7 @@ export const verificationCheckSchema = z.object({
   details: z.record(z.string(), z.unknown()),
 });
 
-export const evidenceSchema = z.object({
-  version: z.literal("1"),
+const evidenceBodySchema = z.object({
   project: z.object({
     name: z.string().min(1),
     repository: z.string().url(),
@@ -42,7 +41,24 @@ export const evidenceSchema = z.object({
   }),
 });
 
+export const evidenceV1Schema = evidenceBodySchema.extend({
+  version: z.literal("1"),
+});
+
+export const evidenceV2Schema = evidenceBodySchema.extend({
+  version: z.literal("2"),
+  schemaVersion: z.literal("2"),
+  verifierVersion: z.string().regex(/^\d+\.\d+\.\d+$/),
+});
+
+export const evidenceSchema = z.discriminatedUnion("version", [
+  evidenceV1Schema,
+  evidenceV2Schema,
+]);
+
+export const CURRENT_EVIDENCE_SCHEMA_VERSION = "2" as const;
+export const VERIFIER_VERSION = "0.2.0" as const;
+
 export type VerificationCheck = z.infer<typeof verificationCheckSchema>;
 export type Evidence = z.infer<typeof evidenceSchema>;
 export type VerificationStatus = z.infer<typeof overallStatusSchema>;
-

@@ -1,5 +1,11 @@
-import { describe, expect, it } from "vitest";
-import { parseGitHubRepositoryUrl } from "@/lib/github/client";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  GitHubRateLimitError,
+  parseGitHubRepositoryUrl,
+  resolveGitHubRepository,
+} from "@/lib/github/client";
+
+afterEach(() => vi.unstubAllGlobals());
 
 describe("parseGitHubRepositoryUrl", () => {
   it("parses a canonical public repository URL", () => {
@@ -23,5 +29,15 @@ describe("parseGitHubRepositoryUrl", () => {
   ])("rejects unsupported repository URL %s", (url) => {
     expect(() => parseGitHubRepositoryUrl(url)).toThrow();
   });
-});
 
+  it("reports GitHub rate limiting distinctly and without leaking credentials", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response("{}", {
+      status: 403,
+      headers: { "x-ratelimit-remaining": "0" },
+    })));
+    await expect(resolveGitHubRepository("https://github.com/openai/openai-node"))
+      .rejects.toBeInstanceOf(GitHubRateLimitError);
+    await expect(resolveGitHubRepository("https://github.com/openai/openai-node"))
+      .rejects.toThrow("try again later");
+  });
+});

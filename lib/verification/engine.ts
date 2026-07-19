@@ -1,6 +1,15 @@
-import type { Evidence, VerificationCheck } from "@/lib/evidence/schema";
+import {
+  CURRENT_EVIDENCE_SCHEMA_VERSION,
+  VERIFIER_VERSION,
+  type Evidence,
+  type VerificationCheck,
+} from "@/lib/evidence/schema";
 import type { VerificationInput } from "@/lib/schemas/verification";
-import { resolveGitHubRepository, type GitHubRepository } from "@/lib/github/client";
+import {
+  GitHubRateLimitError,
+  resolveGitHubRepository,
+  type GitHubRepository,
+} from "@/lib/github/client";
 import { calculateStatus } from "./status";
 import { resolveEndpoint } from "./url-safety";
 import { runHttpCheck } from "./http-check";
@@ -24,7 +33,11 @@ async function runRepositoryCheck(url: string): Promise<{
         completedAt: new Date().toISOString(),
         durationMs: Math.round(performance.now() - started),
         summary: "Public repository and full commit SHA resolved",
-        details: { ...repository },
+        details: {
+          target: repository.repositoryUrl,
+          observationSource: "independent",
+          ...repository,
+        },
       },
     };
   } catch (error) {
@@ -38,7 +51,13 @@ async function runRepositoryCheck(url: string): Promise<{
         completedAt: new Date().toISOString(),
         durationMs: Math.round(performance.now() - started),
         summary: `Repository check failed: ${error instanceof Error ? error.message : "unknown error"}`,
-        details: { repositoryUrl: url },
+        details: {
+          target: url,
+          repositoryUrl: url,
+          observationSource: "independent",
+          failureKind:
+            error instanceof GitHubRateLimitError ? "upstream_rate_limit" : "repository",
+        },
       },
     };
   }
@@ -61,7 +80,9 @@ export async function verifyBuild(input: VerificationInput): Promise<Evidence> {
   const status = calculateStatus(checks);
   const repository = repositoryResult.repository;
   return {
-    version: "1",
+    version: CURRENT_EVIDENCE_SCHEMA_VERSION,
+    schemaVersion: CURRENT_EVIDENCE_SCHEMA_VERSION,
+    verifierVersion: VERIFIER_VERSION,
     project: {
       name: input.projectName,
       repository: repository?.repositoryUrl || input.repositoryUrl,

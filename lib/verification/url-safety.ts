@@ -54,8 +54,14 @@ export async function validateUrlForRequest(input: string): Promise<URL> {
   if (process.env.NODE_ENV === "production" && url.protocol !== "https:") {
     throw new Error("Production verification targets must use HTTPS");
   }
+  if (url.port) {
+    throw new Error("Verification targets must use the standard HTTP or HTTPS port");
+  }
 
-  const hostname = url.hostname.toLowerCase().replace(/\.$/, "");
+  const hostname = url.hostname
+    .toLowerCase()
+    .replace(/^\[|\]$/g, "")
+    .replace(/\.$/, "");
   if (BLOCKED_HOSTS.has(hostname) || hostname.endsWith(".localhost")) {
     throw new Error("Local or metadata hosts are not allowed");
   }
@@ -73,4 +79,3 @@ export function resolveEndpoint(base: string, endpoint?: string): string | undef
   if (!endpoint) return undefined;
   return new URL(endpoint, base).toString();
 }
-

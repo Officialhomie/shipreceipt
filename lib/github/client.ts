@@ -8,6 +8,13 @@ export interface GitHubRepository {
   commitUrl: string;
 }
 
+export class GitHubRateLimitError extends Error {
+  constructor() {
+    super("GitHub API rate limit reached; try again later");
+    this.name = "GitHubRateLimitError";
+  }
+}
+
 export function parseGitHubRepositoryUrl(input: string): {
   owner: string;
   repo: string;
@@ -53,7 +60,7 @@ async function githubJson(url: string): Promise<Record<string, unknown>> {
     throw new Error("Repository is unavailable, private, or does not exist");
   }
   if (response.status === 403 && response.headers.get("x-ratelimit-remaining") === "0") {
-    throw new Error("GitHub API rate limit reached; configure a server-side GITHUB_TOKEN");
+    throw new GitHubRateLimitError();
   }
   if (!response.ok) throw new Error(`GitHub API returned HTTP ${response.status}`);
   return (await response.json()) as Record<string, unknown>;
@@ -93,4 +100,3 @@ export async function resolveGitHubRepository(input: string): Promise<GitHubRepo
     commitUrl: `https://github.com/${owner}/${repo}/commit/${sha}`,
   };
 }
-

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { isBlockedIp, resolveEndpoint } from "@/lib/verification/url-safety";
+import {
+  isBlockedIp,
+  resolveEndpoint,
+  validateUrlForRequest,
+} from "@/lib/verification/url-safety";
 
 describe("SSRF protection", () => {
   it.each([
@@ -27,5 +31,9 @@ describe("SSRF protection", () => {
       "https://example.com/ready",
     );
   });
-});
 
+  it("rejects nonstandard ports", async () => {
+    await expect(validateUrlForRequest("https://example.com:444/path"))
+      .rejects.toThrow("standard HTTP or HTTPS port");
+  });
+});

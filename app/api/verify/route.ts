@@ -4,17 +4,14 @@ import { verificationInputSchema } from "@/lib/schemas/verification";
 import { verifyBuild } from "@/lib/verification/engine";
 import { getEvidenceRepository } from "@/lib/persistence/repository";
 import { assertRateLimit } from "@/lib/verification/rate-limit";
+import { readBoundedJson, RequestBodyTooLargeError } from "@/lib/http/body";
 
 export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   try {
-    const contentLength = Number(request.headers.get("content-length"));
-    if (Number.isFinite(contentLength) && contentLength > 16_384) {
-      return NextResponse.json({ error: "Request body is too large" }, { status: 413 });
-    }
     assertRateLimit(request.headers.get("x-forwarded-for")?.split(",")[0] || "local");
-    const input = verificationInputSchema.parse(await request.json());
+    const input = verificationInputSchema.parse(await readBoundedJson(request));
     const evidence = await verifyBuild(input);
     const record = await getEvidenceRepository().saveEvidence(evidence);
     return NextResponse.json({
@@ -29,6 +26,12 @@ export async function POST(request: NextRequest) {
       totalChecks: evidence.summary.total,
     });
   } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return NextResponse.json({ error: error.message }, { status: 413 });
+    }
+    if (error instanceof SyntaxError) {
+      return NextResponse.json({ error: "Request body must be valid JSON" }, { status: 400 });
+    }
     if (error instanceof ZodError) {
       return NextResponse.json({ error: "Invalid verification request", issues: error.issues }, { status: 400 });
     }
@@ -39,4 +42,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Verification could not be completed" }, { status: 500 });
   }
 }
-

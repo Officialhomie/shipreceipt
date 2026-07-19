@@ -40,7 +40,13 @@ class DevelopmentMemoryRepository implements EvidenceRepository {
     return record;
   }
   async getEvidence(id: string) { return memoryEvidence.get(id) || null; }
-  async saveReceiptMetadata(metadata: ReceiptMetadata) { memoryReceipts.set(metadata.receiptId, metadata); }
+  async saveReceiptMetadata(metadata: ReceiptMetadata) {
+    const existing = memoryReceipts.get(metadata.receiptId);
+    if (existing && JSON.stringify(existing) !== JSON.stringify(metadata)) {
+      throw new Error("Receipt metadata is immutable once saved");
+    }
+    memoryReceipts.set(metadata.receiptId, metadata);
+  }
   async getReceiptMetadata(receiptId: string) { return memoryReceipts.get(receiptId) || null; }
 }
 
@@ -96,10 +102,16 @@ class PostgresEvidenceRepository implements EvidenceRepository {
     await this.sql`insert into shipreceipt_receipts
       (receipt_id, evidence_id, transaction_hash, contract_address)
       values (${metadata.receiptId}, ${metadata.evidenceId}, ${metadata.transactionHash}, ${metadata.contractAddress})
-      on conflict (receipt_id) do update set
-        evidence_id = excluded.evidence_id,
-        transaction_hash = excluded.transaction_hash,
-        contract_address = excluded.contract_address`;
+      on conflict (receipt_id) do nothing`;
+    const existing = await this.getReceiptMetadata(metadata.receiptId);
+    if (
+      !existing ||
+      existing.evidenceId !== metadata.evidenceId ||
+      existing.transactionHash.toLowerCase() !== metadata.transactionHash.toLowerCase() ||
+      existing.contractAddress.toLowerCase() !== metadata.contractAddress.toLowerCase()
+    ) {
+      throw new Error("Receipt metadata is immutable once saved");
+    }
   }
 
   async getReceiptMetadata(receiptId: string): Promise<ReceiptMetadata | null> {
